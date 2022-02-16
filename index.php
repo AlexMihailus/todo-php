@@ -1,11 +1,10 @@
 <?php
 
-$pdo = new PDO("mysql:host=localhost; dbname=demo", "root", "");
+require 'database/QueryBuilder.php';
 
-$sql = "SELECT * FROM tasks";
-$statement = $pdo->prepare($sql);
-$result = $statement->execute();
-$tasks = $statement->fetchAll(PDO::FETCH_ASSOC);
+$db = new QueryBuilder;
+
+$tasks = $db->getAllTasks();
 
 ?>
 
@@ -46,8 +45,7 @@ $tasks = $statement->fetchAll(PDO::FETCH_ASSOC);
                                     <a href="edit.php?id=<?= $task['id']; ?>" class="btn btn-warning">
                                         Edit
                                     </a>
-                                    <a onclick="return confirm('are you sure?');" href="delete.php?id=
-                                    <?= $task['id']; ?>" class="btn btn-danger">Delete</a>
+                                    <a href="delete.php?id=<?= $task['id']; ?>" class="btn btn-danger">Delete</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
