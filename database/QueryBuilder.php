@@ -2,49 +2,64 @@
 
 class QueryBuilder
 {
-    public function getAllTasks()
+    public $pdo;
+
+    public function __construct()
     {
-        $pdo = new PDO("mysql:host=localhost; dbname=demo", "root", "");
-        $sql = "SELECT * FROM tasks";
-        $statement = $pdo->prepare($sql);
+        $this->pdo = new PDO("mysql:host=localhost; dbname=demo", "root", "");
+    }
+
+    public function all($table)
+    {
+        $sql = "SELECT * FROM $table";
+        $statement = $this->pdo->prepare($sql);
         $statement->execute();
-        $tasks = $statement->fetchAll(PDO::FETCH_ASSOC);
+        $results = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-        return $tasks;
+        return $results;
     }
 
-    public function addTask($data)
+    public function getOne($table, $id)
     {
-        $pdo = new PDO("mysql:host=localhost; dbname=demo", "root", "");
-        $sql = "INSERT INTO tasks (title, content) VALUES (:title, :content)";
-        $statement = $pdo->prepare($sql);
-        $statement->execute($data);
-    }
-
-    public function getTask($id)
-    {
-        $pdo = new PDO("mysql:host=localhost; dbname=demo", "root", "");
-        $statement = $pdo->prepare("SELECT * FROM tasks WHERE id=:id");
+        $sql = "SELECT * FROM $table WHERE id=:id";
+        $statement = $this->pdo->prepare($sql);
         $statement->bindParam(":id", $id);
         $statement->execute();
-        $task = $statement->fetch(PDO::FETCH_ASSOC);
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
 
-        return $task;
+        return $result;
     }
 
-    public function updateTask($data)
+    public function store($table, $data)
     {
-        $pdo = new PDO("mysql:host=localhost;dbname=demo", "root", "");
-        $sql = 'UPDATE tasks SET title=:title, content=:content WHERE id=:id';
-        $statement = $pdo->prepare($sql);
+        $keys = array_keys($data);
+        $stringOfKeys = implode(',', $keys);
+        $placeholders = ":" . implode(', :', $keys);
+        $sql = "INSERT INTO $table ($stringOfKeys) VALUES ($placeholders)";
+        $statement = $this->pdo->prepare($sql);
         $statement->execute($data);
     }
 
-    public function deleteTask($id)
+    public function update($table, $data)
     {
-        $pdo = new PDO("mysql:host=localhost; dbname=demo", "root", "");
-        $sql = 'DELETE FROM tasks WHERE id=:id';
-        $statement = $pdo->prepare($sql);
+        $fields = '';
+
+        foreach ($data as $key => $value) {
+            $fields .= $key . "=:" . $key . ",";
+        }
+
+        $fields = rtrim($fields, ',');
+
+        $sql = "UPDATE $table SET $fields WHERE id=:id";
+
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute($data);
+    }
+
+    public function delete($table, $id)
+    {
+        $sql = "DELETE FROM $table WHERE id=:id";
+        $statement = $this->pdo->prepare($sql);
         $statement->bindParam(":id", $id);
         $statement->execute();
     }

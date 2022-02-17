@@ -4,7 +4,7 @@ require 'database/QueryBuilder.php';
 
 $db = new QueryBuilder;
 
-$db->addTask($_POST);
+$db->store("tasks", $_POST);
 
 header("Location: /");
 exit;
